@@ -15,7 +15,7 @@ WORKDIR /app
 # Copy backend and stockfish
 COPY back-end/ /app/
 COPY --from=frontend-build /app/front-end/build /app/static
-COPY stockfish/ /app/stockfish/
+COPY back-end/stockfish/ /app/stockfish/
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
