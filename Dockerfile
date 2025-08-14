@@ -2,6 +2,7 @@
 FROM node:16 AS frontend-build
 WORKDIR /app/front-end
 COPY front-end/package.json front-end/yarn.lock ./
+RUN yarn config set registry https://registry.npmjs.org/
 RUN yarn install
 COPY front-end/ ./
 RUN sed -i 's|https://onlinechess-py-backend.onrender.com|http://localhost:80|g' src/SocketConfig.js
