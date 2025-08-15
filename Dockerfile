@@ -1,25 +1,25 @@
-# Stage 1: Build the frontend
-FROM node:16 AS frontend-build
-WORKDIR /app/front-end
-COPY front-end/package.json front-end/yarn.lock ./
-RUN yarn config set registry https://registry.npmjs.org/
-RUN yarn install
-COPY front-end/ ./
-RUN sed -i 's|https://onlinechess-py-backend.onrender.com|http://localhost:80|g' src/SocketConfig.js
-RUN yarn build
+FROM ubuntu:latest
 
-# Stage 2: Production image
-FROM python:3.9-slim
+RUN apt-get update && apt-get install -y \
+        python3 \
+        python3-pip \
+        stockfish \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY . /app
 WORKDIR /app
+RUN pip3 install -r requirements.txt --disable-pip-version-check --break-system-packages
 
-# Copy backend and stockfish
-COPY back-end/ /app/
-COPY --from=frontend-build /app/front-end/build /app/static
-COPY back-end/stockfish/ /app/stockfish/
+# Allow statements and log messages to immediately appear in the Knative logs
+ENV PYTHONUNBUFFERED True
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+ENV PATH="/usr/games:${PATH}"
+ENV PORT 8080
 
-# Expose port and start the app
-EXPOSE 80
-CMD ["python", "server_updated.py"]
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
+# For environments with multiple CPU cores, increase the number of workers to
+# be equal to the cores available.  Timeout is set to 0 to disable the timeouts
+# of the workers to allow Cloud Run to handle instance scaling.
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app

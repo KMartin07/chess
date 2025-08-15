@@ -1,13 +1,36 @@
-# Online Chess
+# Web UI for Stockfish
 
-This project is a web application where you can play chess against other players or against an AI.
+To set up your environment:
+```sh
+python3 -m venv .stockfish-web-venv
+source .stockfish-web-venv/bin/activate
+pip install -r requirements.txt
+```
 
-## Gameplay
+To install stockfish:
+```sh
+brew install stockfish
+```
 
-To play, simply create a new game. If you want to play with a friend, share the game code with them so they can join your game.
+To run in dev mode (with hot-swapping):
+```sh
+FLASK_APP=app.py FLASK_DEBUG=1 flask run
+```
 
-If you want to play against the computer, you can select an engine to play against and create a game with the computer.
+To run in a container:
+```sh
+podman build -t chess .
+podman run -d -p 8080:8080 chess
+```
 
-### AI Engines
+To deploy on Cloud Run:
+```sh
+gcloud run deploy --source .
+```
 
-The application features a custom-built AI using a hybrid model of minimax and machine learning. However, this AI is not very strong. For a more challenging game, you can choose to play against **Stockfish 14**, which has been integrated into the application.
+## TODO (in no particular order)
+
+* Set up positions.
+* Promote to pieces other than Queen.
+* Defeat caching when pushing a new version.
+* Use a bundler rather than managing css/js/img manually.
